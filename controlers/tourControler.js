@@ -10,6 +10,7 @@ exports.aliasTopTour = (req,res,next) => {
     next();
 }
 
+
 exports.checkBody = (req,res,next) => {
     if(!req.body.name){
         return res.status(400).json(

@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
+
 
 const userSchema = mongoose.Schema(
     {
@@ -16,17 +18,30 @@ const userSchema = mongoose.Schema(
         },
         password: {
             type: String,
-            require: [true,'password cannot be empty']
+            required: [true,'password cannot be empty'],
+            select: 
         },
-        confirmapassword: {
+        confirmpassword: {
             type: String,
             required: true,
+            validate: {validator: function(el){
+                return el === this.password
+            },
+            message: 'password are not same'
+        }
         }
     },
     {
-        timestamp: true
+        timestamps: true
     }
 )
+
+userSchema.pre('save', async function(){
+    if(!this.isModified('password')){ return }
+    this.password = await bcrypt.hash(this.password,12);
+    this.confirmpassword = undefined;
+
+})
 
 const user = mongoose.model('User',userSchema);
 

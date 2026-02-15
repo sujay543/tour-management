@@ -17,3 +17,23 @@ exports.signUp = catchAsync(async (req,res,next) => {
         }
     )
 });
+
+exports.logIn = catchAsync(async (req,res,next) => {
+   const {email, password} = req.body;
+    //check if email and password exist
+    if(!email || !password) { return next(new AppError('email and password required',400)); }
+    //check if user exist and passwod is correct
+    const user = await User.findOne({email}).select('+password');
+    if(!user){ return next(new AppError('user not found',400))}
+    const check = await user.checkPassword(password, user.password);
+    if(!check){ return next(new AppError('password is invalid',404));}
+    //if everything ok send token to client
+    const token = jwt.sign({id: user._id},process.env.JWTSECRETKEY,{ expiresIn: process.env.JWTexpire });
+    res.status(200).json(
+        {
+            status: 'success',
+            token
+        }
+    )
+
+});

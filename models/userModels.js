@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
         password: {
             type: String,
             required: [true,'password cannot be empty'],
-            select: 
+            select: false
         },
         confirmpassword: {
             type: String,
@@ -40,8 +40,12 @@ userSchema.pre('save', async function(){
     if(!this.isModified('password')){ return }
     this.password = await bcrypt.hash(this.password,12);
     this.confirmpassword = undefined;
-
 })
+
+userSchema.methods.checkPassword = async function(password,correctpassword)
+{
+    return await bcrypt.compare(password,correctpassword);
+}
 
 const user = mongoose.model('User',userSchema);
 

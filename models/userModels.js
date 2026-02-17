@@ -24,12 +24,14 @@ const userSchema = mongoose.Schema(
         confirmpassword: {
             type: String,
             required: true,
-            validate: {validator: function(el){
+            validate: {
+                validator: function(el){
                 return el === this.password
-            },
+                },
             message: 'password are not same'
-        }
-        }
+              }
+        },
+         passwordChangedAt: Date
     },
     {
         timestamps: true
@@ -45,6 +47,17 @@ userSchema.pre('save', async function(){
 userSchema.methods.checkPassword = async function(password,correctpassword)
 {
     return await bcrypt.compare(password,correctpassword);
+}
+
+userSchema.methods.changePasswordAfter = function(JwttimeStamp)
+{
+    if(this.passwordChangedAt)
+    {
+        const changedTimeStamp = this.passwordChangedAt.getTime()/1000;
+        return JwttimeStamp < changedTimeStamp;
+    }
+
+    return false;
 }
 
 const user = mongoose.model('User',userSchema);

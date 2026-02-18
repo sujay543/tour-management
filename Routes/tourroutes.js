@@ -9,6 +9,6 @@ const tourRoute = express.Router();
 tourRoute.route('/top-5-cheap').get(tourControler.aliasTopTour, tourControler.getTour);
 
 tourRoute.route('/').get(authControl.protect, tourControler.getTour).post(tourControler.createTour);
-tourRoute.route('/:id').get(tourControler.getspecificTour).patch(tourControler.updateTour).delete(tourControler.deleteTour);
+tourRoute.route('/:id').get(tourControler.getspecificTour).patch(tourControler.updateTour).delete(authControl.protect,authControl.restrictTo('admin'),tourControler.deleteTour);
 
 module.exports = tourRoute;

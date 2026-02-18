@@ -17,7 +17,8 @@ exports.signUp = catchAsync(async (req,res,next) => {
         email: req.body.email,
         password: req.body.password,
          confirmpassword: req.body.confirmpassword,
-         passwordChangedAt: req.body.passwordChangedAt
+         passwordChangedAt: req.body.passwordChangedAt,
+         role: req.body.role
 
 });
     const token = getToken(NewUser._id);
@@ -82,3 +83,15 @@ exports.protect =catchAsync(async (req,res,next) => {
     req.user = user;
     next();
 });
+
+exports.restrictTo = (...roles) => {
+    return (req,res,next) => {
+        console.log(req.user.role);
+        if(!roles.includes(req.user.role))
+        {
+            return next(new AppError('You do not have permission to use this route',403));
+        }
+        next();
+    }
+    
+}

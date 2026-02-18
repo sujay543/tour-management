@@ -21,6 +21,11 @@ const userSchema = mongoose.Schema(
             required: [true,'password cannot be empty'],
             select: false
         },
+        role: {
+            type: String,
+            enum: ['user','admin'],
+            default: 'user'
+        },
         confirmpassword: {
             type: String,
             required: true,

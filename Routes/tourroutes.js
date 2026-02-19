@@ -11,4 +11,5 @@ tourRoute.route('/top-5-cheap').get(tourControler.aliasTopTour, tourControler.ge
 tourRoute.route('/').get(authControl.protect, tourControler.getTour).post(tourControler.createTour);
 tourRoute.route('/:id').get(tourControler.getspecificTour).patch(tourControler.updateTour).delete(authControl.protect,authControl.restrictTo('admin'),tourControler.deleteTour);
 
+
 module.exports = tourRoute;

@@ -6,7 +6,7 @@ const userRoute = express.Router();
 userRoute.route('/signUp').post(authControl.signUp);
 userRoute.route('/login').post(authControl.logIn);
 userRoute.route('/forgetPassword').post(authControl.forgetPassword);
-userRoute.route('/resetPassword')
+userRoute.route('/resetPassword/:token')
 
 userRoute.route('/').get(userControl.getAllUser).post(userControl.createUser);
 userRoute.route('/:id').get(userControl.getOneUser).patch(userControl.updateUser).delete(userControl.deleteUser);

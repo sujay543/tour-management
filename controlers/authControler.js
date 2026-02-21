@@ -5,6 +5,7 @@ const getToken = require('../utils/getToken');
 const jwt = require('jsonwebtoken');
 const sendMail = require('.././utils/email');
 const {promisify} = require('util');
+const crypto = require('crypto');
 
 
 
@@ -113,7 +114,7 @@ exports.forgetPassword = catchAsync(async(req,res,next) => {
     const message = `Forgot your password? Submit a PATCH request with your new password and
     passwordConfirm to: ${resetUrl}.\n If you did not forgot your password please ignore this email`
 
-
+    console.log(user);
     try{
         // to: options.email,
         //     subject: options.subject,
@@ -140,4 +141,32 @@ exports.forgetPassword = catchAsync(async(req,res,next) => {
         return next(new AppError('There was an error sending the email. Try again later!',500));
 
     }
+})
+
+exports.resetPassword = catchAsync(async (req,res,next) => {
+    //Get User based on the token
+    //69359a2df90c07eb7b8e9807cd5a18ea78e4fdb75062ff215aa4d44ec04b6a7e console.log(req.params.token);
+    const hashedToken = crypto
+  .createHash("sha256")
+  .update(req.params.token)
+  .digest("hex");
+  console.log(hashedToken);
+
+  const user = await User.findOne({  passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now()} } );
+  console.log(user);
+
+  if(!user) { return next(new AppError('Token is invlaid or expired',404)) }
+//  19153e43b1eee1b1a6bf66d57e6fa31a80a9014282a32290f402371e7da470c6
+  user.password = req.body.password;
+  user.confirmpassword = req.body.confirmpassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    user.save();
+    res.status(201).json(
+        {
+            status: 'success',
+            message: "password successfully updated"
+        }
+    )
+
 })

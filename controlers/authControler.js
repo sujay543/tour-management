@@ -82,6 +82,7 @@ exports.protect =catchAsync(async (req,res,next) => {
     {
         return next(new AppError('User recently changed the password! please log in again',401));
     }
+    console.log(user);
     req.user = user;
     next();
 });
@@ -170,3 +171,33 @@ exports.resetPassword = catchAsync(async (req,res,next) => {
     )
 
 })
+
+exports.updatePassword = async(req,res,next) => {
+    //get user from the collection
+    const user = await User.findById(req.user.id).select('+password');
+    console.log(user);
+    const isMatch = await user.checkPassword(req.body.password,user.password);
+    if(!isMatch){ return next(new AppError('Incorrect current password',401)); }
+    //check if posted current password is correct
+    if(req.body.newPassword != req.body.confirmPassword)
+    {
+        return next(new AppError('password not match',404));
+    }
+
+    const oldOne = await user.checkPassword(req.body.newPassword,user.password);
+
+    if(oldOne){ return next('Old password cannot be taken as new',401)};
+    //If so update password
+    user.password = req.body.newPassword;
+    user.confirmpassword = req.body.confirmPassword;
+
+    await user.save({validateBeforeSave: false});
+    const token = getToken(user.id);
+    //Log user in, send jwt
+    res.status(201).json(
+        {
+            status: 'success',
+            token
+        }
+    )
+}

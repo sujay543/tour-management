@@ -19,6 +19,7 @@ exports.getAllUser = catchAsync(async (req,res,next) =>{
 
      if(!users){ return next(new AppError('users not found',404))}
 
+
     //send response
     res.status(200).json({
         status: 'success',
@@ -62,6 +63,23 @@ exports.getOneUser = (req,res) =>{
 exports.updateUser = (req,res) =>{
     res.status(404).send("this  not implemented yet");
 }
-exports.deleteUser = (req,res) =>{
-    res.status(404).send("this  not implemented yet");
+
+exports.deleteUser = async(req,res) =>{
+    if(req.user.id != req.params.id)
+    {
+        return next(new AppError('You cant delete this account',403));
+    }
+
+    if(user.role == 'admin')
+    {
+        return next(new AppError('Admin cannot be deleted'))
+    }
+
+    await User.findByIdAndUpdate(req.user.id,{active: false});
+    res.status(201).json(
+        {
+            status: 'success',
+            data: null
+        }
+    )
 }

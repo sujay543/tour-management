@@ -12,7 +12,6 @@ userRoute.route('/updatePassword').patch(authControl.protect,authControl.updateP
 userRoute.route('/updateMe').patch(authControl.protect,userControl.updateMe);
 
 userRoute.route('/').get(userControl.getAllUser).post(userControl.createUser);
-userRoute.route('/:id').get(userControl.getOneUser).patch(userControl.updateUser).delete(userControl.deleteUser);
-
+userRoute.route('/:id').get(userControl.getOneUser).patch(userControl.updateUser).delete(authControl.protect,userControl.deleteUser);
 
 module.exports = userRoute;

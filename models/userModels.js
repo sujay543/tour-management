@@ -39,7 +39,11 @@ const userSchema = mongoose.Schema(
         },
          passwordChangedAt: Date,
          passwordResetToken: String,
-         passwordResetExpires: Date
+         passwordResetExpires: Date,
+         active: {
+            type: Boolean,
+            default: true
+         }
     },
     {
         timestamps: true
@@ -72,6 +76,13 @@ userSchema.methods.changePasswordAfter = function(JwttimeStamp)
 
     return false;
 }
+
+// userSchema.pre(/^find/,function() {
+//     this.where({active: true});
+// })
+userSchema.pre(/^find/,async function() {
+    this.where({ active: {$ne: false} });
+});
 
 userSchema.methods.createPasswordResetToken = async function()
 {

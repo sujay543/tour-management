@@ -82,14 +82,12 @@ exports.protect =catchAsync(async (req,res,next) => {
     {
         return next(new AppError('User recently changed the password! please log in again',401));
     }
-    console.log(user);
     req.user = user;
     next();
 });
 
 exports.restrictTo = (...roles) => {
     return (req,res,next) => {
-        console.log(req.user.role);
         if(!roles.includes(req.user.role))
         {
             return next(new AppError('You do not have permission to use this route',403));
@@ -106,16 +104,12 @@ exports.forgetPassword = catchAsync(async(req,res,next) => {
     if(!user){ return next('not able to find the user',404); }
     //Generate the reset Token
     const resetToken = await user.createPasswordResetToken();
-    console.log(resetToken);
     await user.save({ validateBeforeSave: false});
 
     //send email for reseting password
     const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-    console.log(resetUrl);
     const message = `Forgot your password? Submit a PATCH request with your new password and
     passwordConfirm to: ${resetUrl}.\n If you did not forgot your password please ignore this email`
-
-    console.log(user);
     try{
         // to: options.email,
         //     subject: options.subject,
@@ -151,10 +145,9 @@ exports.resetPassword = catchAsync(async (req,res,next) => {
   .createHash("sha256")
   .update(req.params.token)
   .digest("hex");
-  console.log(hashedToken);
 
   const user = await User.findOne({  passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now()} } );
-  console.log(user);
+
 
   if(!user) { return next(new AppError('Token is invlaid or expired',404)) }
 //  19153e43b1eee1b1a6bf66d57e6fa31a80a9014282a32290f402371e7da470c6
@@ -175,7 +168,6 @@ exports.resetPassword = catchAsync(async (req,res,next) => {
 exports.updatePassword = async(req,res,next) => {
     //get user from the collection
     const user = await User.findById(req.user.id).select('+password');
-    console.log(user);
     const isMatch = await user.checkPassword(req.body.password,user.password);
     if(!isMatch){ return next(new AppError('Incorrect current password',401)); }
     //check if posted current password is correct

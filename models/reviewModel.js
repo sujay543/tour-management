@@ -13,14 +13,17 @@ const reviewSchema = mongoose.Schema(
             trim: true
         },
         tour: {
-            type: mongoose.Types.ObjectId,
+            type: mongoose.Schema.ObjectId,
             ref: 'Tour'
         },
         user: {
-            type: mongoose.Types.ObjectId,
+            type: mongoose.Schema.ObjectId,
             ref: 'User'
         }
     },{
         timestamps: true
     }
 )
+
+const Review = mongoose.model('Review', reviewSchema);
+module.exports = Review;

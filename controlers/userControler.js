@@ -1,7 +1,7 @@
 const User = require('../models/userModels');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const {DeleteOne} = require('./handlerfactory.js');
+const factory = require('./handlerfactory.js');
 
 
 const filterObj = (object,...allowedfields) => 
@@ -56,12 +56,25 @@ exports.createUser= (req,res) =>{
     res.status(404).send("this  not implemented yet");
 }
 
-exports.getOneUser = (req,res) =>{
-    res.status(404).send("this  not implemented yet");
-}
+exports.getOneUser = factory.getOne(User);
 
 exports.updateUser = (req,res) =>{
     res.status(404).send("this  not implemented yet");
 }
 
-exports.deleteUser = DeleteOne(User);
+exports.deleteUser = factory.DeleteOne(User);
+
+exports.getMe = catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('-passwordChangedAt');
+
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user
+        }
+    });
+});

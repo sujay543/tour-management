@@ -3,39 +3,18 @@ const AppError = require('../utils/appError.js');
 const catchAsync = require('../utils/catchAsync.js');
 const factory = require('./handlerfactory.js');
 
-
-exports.createReview = catchAsync(async(req,res,next) => {
-    const tourId = req.params.tourId;
-    if(!tourId)
-    {
-        return next(new AppError('please share the tour id',400))
-    }
+exports.validateReview =  catchAsync(async(req,res,next) => {
     const {review,ratings} = req.body;
     if(!review || !ratings)
     {
         return next(new AppError('review and ratings cant be empty',400));
     }
-    const userId = req.user._id;
-    const newReview = await Review.create(
-        {
-            ratings,
-            review,
-            tour: tourId,
-            user: userId
-        }
-    )
-
-    res.status(200).json(
-        {
-            status: 'success',
-            message: 'review has been created',
-            data: {
-                newReview
-            }
-        }
-    )
+    next();
 
 })
+
+
+exports.createReview = factory.createOne(Review);
 
 exports.getAllReviews = catchAsync(async(req,res,next) => {
     let filter = {};
@@ -52,7 +31,6 @@ exports.getAllReviews = catchAsync(async(req,res,next) => {
     )
 
 })
-
+exports.getSpecificReview = factory.getOne(Review);
 exports.deleteReview = factory.DeleteOne(Review);
-
 exports.updateReview = factory.updateOne(Review);

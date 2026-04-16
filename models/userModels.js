@@ -77,9 +77,6 @@ userSchema.methods.changePasswordAfter = function(JwttimeStamp)
     return false;
 }
 
-// userSchema.pre(/^find/,function() {
-//     this.where({active: true});
-// })
 userSchema.pre(/^find/,async function() {
     this.where({ active: {$ne: false} });
 });

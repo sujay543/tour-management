@@ -1,7 +1,9 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
 const Tour = require('./../../models/tourModels.js');
-dotenv.config({path:'./../../config.env'});
+const Review = require('./../../models/reviewModel.js');
+const User = require('./../../models/userModels.js');
+dotenv.config({ path: `${__dirname}/../../config.env` });
 const mongoose = require('mongoose')
 
 
@@ -12,10 +14,14 @@ mongoose.connect(process.env.DATABASE).then((con) => {
 })
 
 
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`,'utf-8'));
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`,'utf-8'));
+const reviews = JSON.parse(fs.readFileSync(`${__dirname}/reviews.json`,'utf-8'))
+const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`,'utf-8'))
 const insertData = async () => {
     try{
         await Tour.create(tours);
+        await Review.create(reviews);
+        await User.create(users,{ validateBeforeSave: false });
         console.log('data has successfully inserted');
           process.exit();
     }catch(err){
@@ -26,6 +32,8 @@ const insertData = async () => {
 const deleteData = async () => {
     try{
         await Tour.deleteMany();
+        await User.deleteMany();
+        await Review.deleteMany();
         console.log('data has successfully deleted');
           process.exit();
     }catch(err){
@@ -33,10 +41,10 @@ const deleteData = async () => {
     }
 }
 
-if(process.argv[2]== '__insert'){
+if(process.argv[2]== '--insert'){
     insertData();
   
-}else if(process.argv[2]=== '__delete'){
+}else if(process.argv[2]=== '--delete'){
     deleteData();
 }
 

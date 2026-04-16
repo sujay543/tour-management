@@ -7,7 +7,7 @@ const userRoute = require('./Routes/userroutes.js');
 const reviewRoute = require('./Routes/reviewRoutes.js');
 const app = express();
 app.use(express.json());
-
+app.set('query parser', 'extended');
 if(process.env.NODE_ENV === 'development'){
   app.use(morgan('dev'));
 }

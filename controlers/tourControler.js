@@ -3,6 +3,8 @@ const Tour = require('../models/tourModels.js');
 const catchAsync = require('../utils/catchAsync.js');
 const appError = require('../utils/appError.js');
 const factory = require('./handlerfactory.js');
+const { default: mongoose } = require('mongoose');
+const AppError = require('../utils/appError.js');
 
 exports.aliasTopTour = (req,res,next) => {
     req.query.limit = '5';
@@ -34,11 +36,41 @@ exports.getTour = async (req,res) =>{
     excludedfield.forEach(el => delete queryObject[el]);
     
     //advance filtering
-    console.log(queryObject);
     let queryString = JSON.stringify(queryObject);
     queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g,match => `$${match}`);
-    const query = Tour.find(JSON.parse(queryString));
+    let query = Tour.find(JSON.parse(queryString));
+    //sorting 
+    if(req.query.sort)
+    { 
+        const sortBy = req.query.sort.split(',').join(' ');
+        query = query.sort(sortBy);
+    }else{
+       query =  query.sort('-createdAt');
+    }
+    //field
+    if(req.query.fields)
+    {
+        const includefield = req.query.fields.split(',').join(' ');
+        query = query.select(includefield);
+    }else{
+        query = query.select('-__v');
+    }
 
+    //pagination
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 100;
+    const skip = (page-1) * limit;
+
+    if(req.query.page)
+    {
+        const countDocument = Tour.countDocuments();
+        if(skip > countDocument)
+        {
+            return next(new AppError('page does not exist'));
+        }
+    }
+
+    query = query.skip(skip).limit(limit);
     //Execute the query
     const tours = await query;
 

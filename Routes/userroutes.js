@@ -3,15 +3,30 @@ const userControl = require('../controlers/userControler.js');
 const authControl = require('../controlers/authControler.js')
 const userRoute = express.Router();
 
-userRoute.route('/signUp').post(authControl.signUp);
-userRoute.route('/login').post(authControl.logIn);
-userRoute.route('/forgetPassword').post(authControl.forgetPassword);
-userRoute.route('/resetPassword/:token').patch(authControl.resetPassword);
-userRoute.route('/updatePassword').patch(authControl.protect,authControl.updatePassword);
+// Public routes
+userRoute.post('/signUp', authControl.signUp);
+userRoute.post('/login', authControl.logIn);
+userRoute.post('/forgetPassword', authControl.forgetPassword);
+userRoute.patch('/resetPassword/:token', authControl.resetPassword);
 
-userRoute.route('/updateMe').patch(authControl.protect,userControl.updateMe);
-userRoute.route('/me').get(authControl.protect,userControl.getMe);
-userRoute.route('/').get(userControl.getAllUser).post(userControl.createUser);
-userRoute.route('/:id').get(userControl.getOneUser).patch(userControl.updateUser).delete(authControl.protect,userControl.deleteUser);
+// Protect all routes after this
+userRoute.use(authControl.protect);
+
+// User routes
+userRoute.patch('/updatePassword', authControl.updatePassword);
+userRoute.patch('/updateMe', userControl.updateMe);
+userRoute.get('/me', userControl.getMe);
+
+// Admin routes
+userRoute.use(authControl.restrictTo('admin'));
+
+userRoute.route('/')
+    .get(userControl.getAllUser)
+    .post(userControl.createUser);
+
+userRoute.route('/:id')
+    .get(userControl.getOneUser)
+    .patch(userControl.updateUser)
+    .delete(userControl.deleteUser);
 
 module.exports = userRoute;

@@ -5,7 +5,6 @@ const reviewController = require('../controlers/reviewControler.js');
 const reviewRouter = require('./reviewRoutes.js');
 const tourRoute = express.Router();
 
-// tourRoute.param('id',tourControler.checkId);
 tourRoute.use('/:tourId/reviews',reviewRouter);
 tourRoute.route('/top-5-cheap').get(tourControler.aliasTopTour, tourControler.getTour);
 

@@ -7,7 +7,7 @@ const tourRoute = express.Router();
 
 tourRoute.use('/:tourId/reviews',reviewRouter);
 tourRoute.route('/top-5-cheap').get(tourControler.aliasTopTour, tourControler.getTour);
-
+tourRoute.route('/tour-stats').get(tourControler.getTourStats);
 tourRoute.route('/').get(authController.protect, tourControler.getTour).post(tourControler.createTour);
 tourRoute.route('/:id').get(tourControler.getspecificTour).patch(tourControler.updateTour).delete(authController.protect,authController.restrictTo('admin'),tourControler.deleteTour);
 
